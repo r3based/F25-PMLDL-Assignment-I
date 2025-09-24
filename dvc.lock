@@ -1,0 +1,67 @@
+schema: '2.0'
+stages:
+  process_data:
+    cmd: python code/datasets/process_data.py
+    deps:
+    - path: code/datasets/process_data.py
+      hash: md5
+      md5: fec8ea9e3240b185ff5977ead796a2fd
+      size: 3182
+    - path: data/raw/wine_quality.csv
+      hash: md5
+      md5: 8105c67fadc9587ac98a4d0b54501a65
+      size: 392235
+    outs:
+    - path: data/processed/X_test.csv
+      hash: md5
+      md5: 3cd5302cc4da5d3ad32670eb6b10b9a9
+      size: 52284
+    - path: data/processed/X_train.csv
+      hash: md5
+      md5: 172506a55ed655df81ca5b928a899511
+      size: 207971
+    - path: data/processed/y_test.csv
+      hash: md5
+      md5: 8f79750809f0b484438bfadc894dec12
+      size: 3688
+    - path: data/processed/y_train.csv
+      hash: md5
+      md5: 0bad876bfc4a300570b99c4e70225e54
+      size: 14712
+  train_model:
+    cmd: python code/models/train_model_mlflow.py
+    deps:
+    - path: code/models/train_model_mlflow.py
+      hash: md5
+      md5: 93f3e0caf102d830931721486ba2d911
+      size: 4716
+    - path: data/processed/X_test.csv
+      hash: md5
+      md5: 3cd5302cc4da5d3ad32670eb6b10b9a9
+      size: 52284
+    - path: data/processed/X_train.csv
+      hash: md5
+      md5: 172506a55ed655df81ca5b928a899511
+      size: 207971
+    - path: data/processed/y_test.csv
+      hash: md5
+      md5: 8f79750809f0b484438bfadc894dec12
+      size: 3688
+    - path: data/processed/y_train.csv
+      hash: md5
+      md5: 0bad876bfc4a300570b99c4e70225e54
+      size: 14712
+    outs:
+    - path: mlruns
+      hash: md5
+      md5: e09df0bc5f5478f86c339f8fc364907d.dir
+      size: 14704316
+      nfiles: 52
+    - path: models/model_metrics_mlflow.txt
+      hash: md5
+      md5: e4e51683d4e20065159788436a255c58
+      size: 123
+    - path: models/wine_quality_model_mlflow.pkl
+      hash: md5
+      md5: ad00affcdf765fbf171f9c63be49e9fb
+      size: 7354337

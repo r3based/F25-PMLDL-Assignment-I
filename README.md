@@ -204,4 +204,3 @@ Submit the solution of the assignment as a **link to the GitHub repository**. Af
 
 * [Get Started with Streamlit](https://docs.streamlit.io/get-started)
 
-

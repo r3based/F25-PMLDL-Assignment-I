@@ -1,0 +1,23 @@
+stages:
+  process_data:
+    cmd: python code/datasets/process_data.py
+    deps:
+    - code/datasets/process_data.py
+    - data/raw/wine_quality.csv
+    outs:
+    - data/processed/X_test.csv
+    - data/processed/X_train.csv
+    - data/processed/y_test.csv
+    - data/processed/y_train.csv
+  train_model:
+    cmd: python code/models/train_model_mlflow.py
+    deps:
+    - code/models/train_model_mlflow.py
+    - data/processed/X_test.csv
+    - data/processed/X_train.csv
+    - data/processed/y_test.csv
+    - data/processed/y_train.csv
+    outs:
+    - mlruns
+    - models/model_metrics_mlflow.txt
+    - models/wine_quality_model_mlflow.pkl
