@@ -8,46 +8,47 @@ services:
     environment:
       AIRFLOW__CORE__EXECUTOR: SequentialExecutor
       AIRFLOW__CORE__LOAD_EXAMPLES: "False"
-      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: sqlite:///airflow.db
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: sqlite:////opt/airflow/airflow.db
       AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "False"
       AIRFLOW__API__AUTH_BACKENDS: "airflow.api.auth.backend.basic_auth"
-      AIRFLOW_UID: 50000
-      AIRFLOW_GID: 50000
-    user: "${AIRFLOW_UID}:${AIRFLOW_GID}"
+    user: "50000:50000"
     volumes:
       - ./dags:/opt/airflow/dags
       - ./plugins:/opt/airflow/plugins
       - ./data:/opt/airflow/data
       - ./code:/opt/airflow/code
-    ports:
-      - "8080:8080"
-    command: >
+    entrypoint: >
       bash -c "
-        pip install --no-cache-dir dvc==3.42.0 &&
+        pip install --user --no-cache-dir dvc==3.42.0 &&
         airflow db init &&
         airflow users create --username admin --password admin --firstname Airflow --lastname Admin --role Admin --email admin@example.com &&
-        airflow scheduler & airflow webserver"
+        exec airflow standalone
+      "
+    ports:
+      - "8080:8080"
 
-  # Опционально: если нужно подключение DVC/дополнительно
-  wine_data:
-    image: python:3.11-slim
-    container_name: wine_data
-    working_dir: /app
+  api:
+    build:
+      context: ../../
+      dockerfile: code/deployment/api/Dockerfile
+    container_name: wine_quality_api
     volumes:
-      - ./data:/app/data
-      - ./code:/app/code
-    command: tail -f /dev/null
-    stdin_open: true
-    tty: true
+      - ../../models:/app/models:ro
     environment:
-      PIP_NO_CACHE_DIR: "1"
+      - PYTHONPATH=/app
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+
+  app:
+    build:
+      context: ../../
+      dockerfile: code/deployment/app/Dockerfile
+    container_name: wine_quality_app
     depends_on:
-      - airflow
-
-networks:
-  default:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.50.0.0/16
-
+      - api
+    environment:
+      - API_URL=http://api:8000
+    restart: unless-stopped
+    ports:
+      - "8501:8501"
